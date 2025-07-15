@@ -100,7 +100,8 @@ client, err := gigago.NewClient(
 - `WithCustomURLOauth(url string)`: Задать URL для OAuth-сервиса.
 - `WithCustomClient(client *http.Client)`: Использовать собственный `*http.Client`.
 - `WithCustomTimeout(timeout time.Duration)`: Установить таймаут для HTTP-запросов.
-- `WithCustomScope(scope string)`: Указать `scope` для получения токена (`GIGACHAT_API_PERS` или `GIGACHAT_API_CORP`). По дефолту стоит GIGACHAT_API_PERS. 
+- `WithCustomScope(scope string)`: Указать `scope` для получения токена (`GIGACHAT_API_B2B`, `GIGACHAT_API_PERS`, `GIGACHAT_API_CORP`). По дефолту стоит GIGACHAT_API_PERS.
+- `WithCustomInsecureSkipVerify(insecureSkipVerify bool)`: Отключает проверку сертификата. 
 
 ### Роли сообщений
 
