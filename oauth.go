@@ -23,7 +23,7 @@ func (c *Client) oauthCreate(ctx context.Context) (*tokenResponse, error) {
 
 	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURLOauth, strings.NewReader(data.Encode()))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -35,19 +35,18 @@ func (c *Client) oauthCreate(ctx context.Context) (*tokenResponse, error) {
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-
-		return nil, fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("oauth request failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
 	var token tokenResponse
 	if err = json.NewDecoder(resp.Body).Decode(&token); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return &token, nil

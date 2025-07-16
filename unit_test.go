@@ -54,7 +54,7 @@ func TestClient_Generate(t *testing.T) {
 			inputMessages: []Message{
 				{Role: RoleUser, Content: "The capital of France is"},
 			},
-			expectedOauthError: errors.New("token fetch failed"),
+			expectedOauthError: errors.New("oauth request failed with status 500"),
 		},
 		{
 			name:            "Failure_ClientCreation_OauthUnauthorized",
@@ -63,7 +63,7 @@ func TestClient_Generate(t *testing.T) {
 			inputMessages: []Message{
 				{Role: RoleUser, Content: "The capital of France is"},
 			},
-			expectedOauthError: errors.New("token fetch failed"),
+			expectedOauthError: errors.New("oauth request failed with status 401"),
 		},
 		{
 			name: "Failure_Generate_APIError",
@@ -178,7 +178,7 @@ func TestNewClient(t *testing.T) {
 			apiKey:         "testKey",
 			mockStatusCode: http.StatusInternalServerError,
 			mockResponse:   nil,
-			expectedError:  errors.New("token fetch failed"),
+			expectedError:  errors.New("oauth request failed with status 500"),
 		},
 		{
 			name:            "Failure_InvalidJSONResponse",
@@ -230,7 +230,7 @@ func TestClient_isValid(t *testing.T) {
 	testNow := time.Date(2023, 10, 27, 10, 0, 0, 0, time.UTC)
 	testNowMs := testNow.UnixNano() / int64(time.Millisecond)
 
-	fifteenMinutesMs := int64(15 * 60 * 1000)
+	fifteenMinutesMs := int64(tokenRefreshBuffer / time.Millisecond)
 
 	testCases := []struct {
 		name      string
@@ -310,14 +310,14 @@ func TestClient_Refresh(t *testing.T) {
 			apiKey:         "testKey",
 			mockStatusCode: http.StatusInternalServerError,
 			response:       nil,
-			expectedError:  errors.New("unexpected status"),
+			expectedError:  errors.New("oauth request failed with status 500"),
 		},
 		{
 			name:           "Failure_unathorized",
 			apiKey:         "testKey",
 			mockStatusCode: http.StatusUnauthorized,
 			response:       nil,
-			expectedError:  errors.New("unexpected status"),
+			expectedError:  errors.New("oauth request failed with status 401"),
 		},
 	}
 

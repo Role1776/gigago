@@ -12,6 +12,8 @@ import (
 const (
 	defaultBaseURLForAI    = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 	defaultBaseURLForOauth = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
+	defaultTimeout         = 30 * time.Second
+	defaultScope           = "GIGACHAT_API_PERS"
 )
 
 // Client is the main entry point for interacting with the GigaChat API.
@@ -118,18 +120,22 @@ func WithCustomInsecureSkipVerify(insecureSkipVerify bool) Option {
 // It also launches a background goroutine to automatically refresh the token before it expires.
 // An error is returned if the initial token fetch fails.
 func NewClient(ctx context.Context, apiKey string, opts ...Option) (*Client, error) {
+	if apiKey == "" {
+		return nil, fmt.Errorf("apiKey cannot be empty")
+	}
+
 	client := &Client{
 		apiKey:       apiKey,
 		baseURLAI:    defaultBaseURLForAI,
 		baseURLOauth: defaultBaseURLForOauth,
-		scope:        "GIGACHAT_API_PERS",
+		scope:        defaultScope,
 		httpClient: &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: false,
 				},
 			},
-			Timeout: 30 * time.Second,
+			Timeout: defaultTimeout,
 		},
 		wg: &sync.WaitGroup{},
 	}

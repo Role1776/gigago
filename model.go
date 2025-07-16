@@ -1,5 +1,7 @@
 package gigago
 
+import "fmt"
+
 type GenerativeModel struct {
 	c                 *Client
 	fullName          string
@@ -18,6 +20,10 @@ type GenerativeModel struct {
 // The returned model can be configured by setting its fields (e.g., Temperature, TopP)
 // before being used to generate content.
 func (c *Client) GenerativeModel(name string) *GenerativeModel {
+	if name == "" {
+		name = "GigaChat" // Default model name
+	}
+
 	return &GenerativeModel{
 		c:                 c,
 		fullName:          name,
@@ -27,4 +33,21 @@ func (c *Client) GenerativeModel(name string) *GenerativeModel {
 		MaxTokens:         999999999,
 		RepetitionPenalty: 1,
 	}
+}
+
+// Validate checks if the model parameters are within acceptable ranges
+func (g *GenerativeModel) Validate() error {
+	if g.Temperature < 0 || g.Temperature > 2 {
+		return fmt.Errorf("temperature must be between 0 and 2, got %f", g.Temperature)
+	}
+	if g.TopP < 0 || g.TopP > 1 {
+		return fmt.Errorf("top_p must be between 0 and 1, got %f", g.TopP)
+	}
+	if g.MaxTokens <= 0 {
+		return fmt.Errorf("max_tokens must be positive, got %d", g.MaxTokens)
+	}
+	if g.RepetitionPenalty < 0.1 || g.RepetitionPenalty > 2.0 {
+		return fmt.Errorf("repetition_penalty must be between 0.1 and 2.0, got %f", g.RepetitionPenalty)
+	}
+	return nil
 }
