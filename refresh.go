@@ -69,6 +69,9 @@ func (c *Client) tokenRefresher(ctx context.Context) {
 	}
 }
 
+// TODO: Рассмотреть возможность добавления отдельного мьютекса для защиты от проблемы "Thundering Herd"
+// В текущей реализации это может привести к лишним запросам на аутентификацию.
+// Пока нагрузка и лимиты это позволяют, оставляем как есть для простоты.
 func (c *Client) refreshToken(ctx context.Context) error {
 	token, err := c.oauthCreate(ctx)
 	if err != nil {
