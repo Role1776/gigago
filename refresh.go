@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+const (
+	// tokenRefreshBuffer is the time buffer before token expiration to trigger refresh
+	tokenRefreshBuffer = 15 * time.Minute
+	// tokenRefreshInterval is how often to check if token needs refresh
+	tokenRefreshInterval = 1 * time.Minute
+	// refreshTimeout is the timeout for token refresh requests
+	refreshTimeout = 30 * time.Second
+)
+
 // isValid checks if the token is still fresh enough for use.
 // It returns true if the token's expiration time is more than 15 minutes in the future.
 // This 15-minute buffer provides a safe window to prevent using an expired token
@@ -16,7 +25,7 @@ func (c *Client) isValid(expire_at int64, now time.Time) bool {
 
 	remaining := expire_at - nowMs
 
-	fifteenMinutesMs := int64(15 * 60 * 1000)
+	fifteenMinutesMs := int64(tokenRefreshBuffer / time.Millisecond)
 
 	return remaining > fifteenMinutesMs
 }
@@ -29,30 +38,32 @@ func (c *Client) isValid(expire_at int64, now time.Time) bool {
 func (c *Client) tokenRefresher(ctx context.Context) {
 	defer c.wg.Done()
 
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(tokenRefreshInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
+			// Check if context is cancelled before proceeding
+			if ctx.Err() != nil {
+				return
+			}
+
 			c.mu.RLock()
 			shouldRefresh := !c.isValid(c.accessToken.ExpiresAt, time.Now())
 			c.mu.RUnlock()
 
 			if shouldRefresh {
-
-				reqCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+				reqCtx, cancel := context.WithTimeout(ctx, refreshTimeout)
 				err := c.refreshToken(reqCtx)
 				cancel()
 
 				if err != nil {
-
 					log.Printf("gigago: failed to refresh token in background: %v", err)
 				}
 			}
 
 		case <-ctx.Done():
-
 			return
 		}
 	}

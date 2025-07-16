@@ -101,6 +101,12 @@ func (g *GenerativeModel) Generate(ctx context.Context, message []Message) (*Com
 	if len(message) == 0 {
 		return nil, fmt.Errorf("empty message")
 	}
+
+	// Validate model parameters
+	if err := g.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid model parameters: %w", err)
+	}
+
 	finalMessages := make([]Message, 0, len(message)+1)
 	if g.SystemInstruction != "" {
 		finalMessages = append(finalMessages, Message{Role: RoleSystem, Content: g.SystemInstruction})
@@ -124,9 +130,11 @@ func (g *GenerativeModel) Generate(ctx context.Context, message []Message) (*Com
 	var resp *http.Response
 
 	for i := 0; i < 2; i++ {
+		var token string
 		g.c.mu.RLock()
-		token := g.c.accessToken.AccessToken
+		token = g.c.accessToken.AccessToken
 		g.c.mu.RUnlock()
+
 		req, err := http.NewRequestWithContext(ctx, "POST", g.c.baseURLAI, bytes.NewBuffer(jsonData))
 		if err != nil {
 			return nil, err
@@ -156,6 +164,9 @@ func (g *GenerativeModel) Generate(ctx context.Context, message []Message) (*Com
 		}
 	}
 
+	if resp == nil {
+		return nil, fmt.Errorf("no response received after retries")
+	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
