@@ -28,12 +28,17 @@ type Client struct {
 	// baseURLOauth is the base URL for the OAuth 2.0 token endpoint.
 	baseURLOauth string
 	// scope defines the permission scope for the access token.
-	scope       string
-	apiKey      string
-	mu          sync.RWMutex
-	wg          *sync.WaitGroup
-	accessToken *tokenResponse
-	ctxCancel   context.CancelFunc
+	scope          string
+	apiKey         string
+	mu             sync.RWMutex
+	wg             *sync.WaitGroup
+	accessToken    *tokenResponse
+	ctxCancel      context.CancelFunc
+	refreshMu      sync.Mutex
+	refreshing     bool
+	refreshWaiters []chan error
+	// for testing
+	oauthCreateFunc func(ctx context.Context) (*tokenResponse, error)
 }
 
 // Option is a function type used to configure a Client.

@@ -6,6 +6,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -354,4 +356,34 @@ func TestClient_Refresh(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestClient_ConcurrentRefreshToken(t *testing.T) {
+	var callCount int32
+	const goroutines = 10
+
+	client := &Client{}
+
+	client.oauthCreateFunc = func(ctx context.Context) (*tokenResponse, error) {
+		atomic.AddInt32(&callCount, 1)
+		time.Sleep(50 * time.Millisecond) // simulate network delay
+		return &tokenResponse{AccessToken: "token", ExpiresAt: time.Now().Add(time.Hour).UnixMilli()}, nil
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(goroutines)
+	errs := make([]error, goroutines)
+
+	for i := 0; i < goroutines; i++ {
+		go func(idx int) {
+			defer wg.Done()
+			errs[idx] = client.refreshToken(context.Background())
+		}(i)
+	}
+	wg.Wait()
+
+	for _, err := range errs {
+		require.NoError(t, err)
+	}
+	require.Equal(t, int32(1), callCount, "oauthCreate должен быть вызван только один раз")
 }
