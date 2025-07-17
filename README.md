@@ -101,7 +101,7 @@ client, err := gigago.NewClient(
 - `WithCustomClient(client *http.Client)`: Uses a custom `*http.Client`.
 - `WithCustomTimeout(timeout time.Duration)`: Sets a custom timeout for HTTP requests.
 - `WithCustomScope(scope string)`: Specifies the OAuth scope (`GIGACHAT_API_B2B`, `GIGACHAT_API_PERS`, `GIGACHAT_API_CORP`). Defaults to `GIGACHAT_API_PERS`.
-- `gigago.WithCustomInsecureSkipVerify(insecureSkipVerify bool)`: Disables certificate verification.
+- `WithCustomInsecureSkipVerify(insecureSkipVerify bool)`: Disables certificate verification.
 
 ### Message Roles
 
