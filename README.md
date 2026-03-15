@@ -1,8 +1,20 @@
 # Gigago: Go SDK for the GigaChat API
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Role1776/gigago)](https://goreportcard.com/report/github.com/Role1776/gigago) [![PkgGoDev](https://pkg.go.dev/badge/github.com/Role1776/gigago)](https://pkg.go.dev/github.com/Role1776/gigago)
+
+# ⚠️ ARCHIVED: PROJECT DEPRECATED DUE TO ETHICAL REASONS
+
+
+The Russian army is currently committing **genocide** and war crimes in Ukraine, and services like GigaChat are part of an ecosystem whose taxes fund the regime. 
+
+**DO NOT USE THIS SDK.** Do not use Russian LLMs or provide your data and resources to the Russian system. Any use of such software is silent complicity. This project remains public only as a demonstration of technical skills. A programmer working for Sber, Tinkoff, or developing software for the repression of citizens is an accomplice, not an "engineer above politics."
+
+---
+
+
 > **[Читать документацию на русском языке](https://github.com/Role1776/gigago/blob/main/README.ru.md)**
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Role1776/gigago)](https://goreportcard.com/report/github.com/Role1776/gigago) [![PkgGoDev](https://pkg.go.dev/badge/github.com/Role1776/gigago)](https://pkg.go.dev/github.com/Role1776/gigago)
+
 
 <p align="left">
   <img src="https://github.com/Role1776/gigago/blob/main/logo.webp" width="300">
